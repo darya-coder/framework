@@ -128,10 +128,14 @@ body.menu-open .overlay__foot{opacity:1;transition-delay:.55s}
 .modal__panel{position:relative;background:var(--blue);color:#fff;width:min(560px,100%);max-height:calc(100vh - 48px);overflow-y:auto;border-radius:22px;padding:44px 40px;opacity:0;transform:translateY(28px) scale(.98);transition:opacity .45s var(--ease),transform .45s var(--ease);scrollbar-width:none}
 .modal__panel::-webkit-scrollbar{display:none}
 .modal.is-open .modal__panel{opacity:1;transform:none}
+.modal__panel--small{width:min(460px,100%);padding:48px 40px 40px}
 .modal__close{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.4);color:#fff;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:.3s}
 .modal__close:hover{border-color:#fff;background:rgba(255,255,255,.08)}
 .modal__title{color:#fff;margin-bottom:26px}
-@media (max-width:640px){.modal{padding:16px}.modal__panel{padding:34px 22px}}
+.form__success{text-align:left}
+.form__okIcon{width:64px;height:64px;border-radius:50%;background:#fff;color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:22px}
+.form__success p{margin-top:10px;color:rgba(255,255,255,.78);font-size:var(--fs-body)}
+@media (max-width:640px){.modal{padding:16px}.modal__panel{padding:34px 22px}.modal__panel--small{padding:40px 24px 28px}}
 .hero{position:relative;padding:190px 0 0;min-height:100svh;display:flex;flex-direction:column}
 .hero__inner{flex:1;display:flex;flex-direction:column}
 .hero__top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:44px}
@@ -381,10 +385,6 @@ section{position:relative}
 .form__error{min-height:16px;font-size:var(--fs-label);letter-spacing:.06em;color:var(--pink)}
 .form__error a{color:#fff;text-decoration:underline;text-underline-offset:3px;word-break:break-all}
 .form__submit{display:flex;justify-content:flex-end}
-.form__success{text-align:left;padding:40px 0}
-.modal__panel .form__success{padding:20px 0 0}
-.form__okIcon{width:64px;height:64px;border-radius:50%;background:#fff;color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:28px}
-.form__success p{margin-top:10px;color:rgba(255,255,255,.78);font-size:var(--fs-body)}
 footer{background:var(--ink);color:var(--bg);padding:90px 0 0;overflow:hidden}
 .foot__grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;padding-bottom:80px}
 .foot__brand{font-size:22px;font-weight:700;letter-spacing:-.02em}
@@ -497,6 +497,7 @@ html{scroll-behavior:auto}
   </div>
 </div>
 
+<!-- pop-up form "Start a project" -->
 <div class="modal" id="modal" data-invert-cursor aria-hidden="true">
   <div class="modal__backdrop" data-close-modal></div>
   <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -526,9 +527,17 @@ html{scroll-behavior:auto}
         <button class="btn btn--white" type="submit"><span class="btn__in"><span>Start a project</span><span aria-hidden="true">Start a project</span></span></button>
       </div>
     </form>
-    <div class="form__success" hidden>
+  </div>
+</div>
+
+<!-- pop-up "Brief received" — показывается после успешной отправки ЛЮБОЙ формы -->
+<div class="modal" id="successModal" data-invert-cursor aria-hidden="true">
+  <div class="modal__backdrop" data-close-success></div>
+  <div class="modal__panel modal__panel--small" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+    <button class="modal__close" type="button" data-close-success aria-label="Close">×</button>
+    <div class="form__success">
       <span class="form__okIcon">✓</span>
-      <h3>Brief received</h3>
+      <h3 id="successTitle">Brief received</h3>
       <p>I’ll get back to you within 24 hours. Meanwhile — your team can focus on scaling.</p>
     </div>
   </div>
@@ -816,11 +825,6 @@ html{scroll-behavior:auto}
             <button class="btn btn--white" type="submit"><span class="btn__in"><span>Start a project</span><span aria-hidden="true">Start a project</span></span></button>
           </div>
         </form>
-        <div class="form__success" hidden>
-          <span class="form__okIcon">✓</span>
-          <h3>Brief received</h3>
-          <p>I’ll get back to you within 24 hours. Meanwhile — your team can focus on scaling.</p>
-        </div>
       </div>
     </div>
   </section>
@@ -969,8 +973,9 @@ html{scroll-behavior:auto}
   });
   var workItems = document.querySelectorAll(".work__item");
 
-  /* ---------- modal ---------- */
+  /* ---------- modals: form modal + success popup ---------- */
   var modal = document.getElementById("modal");
+  var successModal = document.getElementById("successModal");
   function openModal(){
     closeMenu();
     modal.classList.add("is-open");
@@ -982,11 +987,24 @@ html{scroll-behavior:auto}
   function closeModal(){
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden","true");
+    if (!document.body.classList.contains("menu-open") && !successModal.classList.contains("is-open")) document.body.style.overflow = "";
+    computeZones();
+  }
+  function openSuccess(){
+    successModal.classList.add("is-open");
+    successModal.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    computeZones();
+  }
+  function closeSuccess(){
+    successModal.classList.remove("is-open");
+    successModal.setAttribute("aria-hidden","true");
     if (!document.body.classList.contains("menu-open")) document.body.style.overflow = "";
     computeZones();
   }
   document.querySelectorAll("[data-open-modal]").forEach(function(b){ b.addEventListener("click", openModal); });
   modal.querySelectorAll("[data-close-modal]").forEach(function(b){ b.addEventListener("click", closeModal); });
+  successModal.querySelectorAll("[data-close-success]").forEach(function(b){ b.addEventListener("click", closeSuccess); });
 
   /* ---------- anchors / menu ---------- */
   var burger = document.getElementById("burger");
@@ -1015,7 +1033,8 @@ html{scroll-behavior:auto}
   });
   document.addEventListener("keydown", function(e){
     if (e.key !== "Escape") return;
-    if (modal.classList.contains("is-open")) closeModal();
+    if (successModal.classList.contains("is-open")) closeSuccess();
+    else if (modal.classList.contains("is-open")) closeModal();
     else if (document.body.classList.contains("menu-open")) closeMenu();
   });
 
@@ -1044,6 +1063,7 @@ html{scroll-behavior:auto}
     document.querySelectorAll("[data-invert-cursor]").forEach(function(el){
       if (el.id === "overlay" && !menuOpen) return;
       if (el.id === "modal" && !modal.classList.contains("is-open")) return;
+      if (el.id === "successModal" && !successModal.classList.contains("is-open")) return;
       var r = el.getBoundingClientRect();
       if (r.height > 0) invertZones.push([r.top, r.bottom]);
     });
@@ -1154,7 +1174,7 @@ html{scroll-behavior:auto}
     });
   });
 
-  /* ---------- forms ---------- */
+  /* ---------- forms -> Formspree + success popup ---------- */
   var channelCfg = {
     "Email":    { label:"EMAIL *",    placeholder:"you@company.com" },
     "Telegram": { label:"TELEGRAM *", placeholder:"@designerdarya" },
@@ -1192,7 +1212,6 @@ html{scroll-behavior:auto}
     var fileNameEl = form.querySelector("[data-filename]");
     var dropEl = form.querySelector(".form__drop");
     var formError = form.querySelector(".form__error");
-    var successEl = form.parentElement ? form.parentElement.querySelector(".form__success") : null;
     var submitBtn = form.querySelector('[type="submit"]');
     var btnSpans = submitBtn ? submitBtn.querySelectorAll(".btn__in span") : [];
     function currentChannel(){ var c = form.querySelector('input[name="channel"]:checked'); return c ? c.value : "Email"; }
@@ -1219,8 +1238,12 @@ html{scroll-behavior:auto}
     function showSuccess(){
       setSending(false);
       formError.textContent = "";
-      form.hidden = true;
-      if (successEl) successEl.hidden = false;
+      form.reset();
+      if (fileNameEl) fileNameEl.textContent = "";
+      if (contactLabel) contactLabel.textContent = channelCfg.Email.label;
+      cvalueInput.placeholder = channelCfg.Email.placeholder;
+      if (form.closest("#modal")) closeModal();
+      openSuccess(); /* pop-up, который точно заметят */
     }
     function showError(msg, data){
       setSending(false);
