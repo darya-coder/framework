@@ -909,13 +909,12 @@ html{scroll-behavior:auto}
           if (d) el.style.transitionDelay = d + "s";
         }
         el.classList.add("is-in");
-        if (el.hasAttribute("data-count")) countUp(el.querySelector("[data-count]") || el);
+        var cnt = el.querySelector("[data-count]"); if (cnt) { countUp(cnt); } else if (el.hasAttribute("data-count")) { countUp(el); }
         if (el.hasAttribute("data-scramble")) scrambleEl(el);
         io.unobserve(el);
       });
     }, { threshold: 0.12 });
     document.querySelectorAll("[data-reveal], .rl, .work__media, [data-reveal-path]").forEach(function(el){ io.observe(el); });
-    document.querySelectorAll(".stat").forEach(function(el){ io.observe(el); });
   } else {
     document.querySelectorAll(".rl, .work__media, [data-reveal], [data-reveal-path]").forEach(function(el){ el.classList.add("is-in"); });
     document.querySelectorAll("[data-count]").forEach(countUp);
