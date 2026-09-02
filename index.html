@@ -1256,7 +1256,6 @@ html{scroll-behavior:auto}
         var desc = form.querySelector('[name="message"]').value.trim();
         if (!name) { formError.textContent = "— PLEASE TELL ME YOUR NAME."; form.querySelector('[name="name"]').focus(); return; }
         if (!cval) { formError.textContent = "— LEAVE YOUR " + currentChannel().toUpperCase() + " SO I CAN REACH YOU."; cvalueInput.focus(); return; }
-        if (!desc && !fileInput.files.length) { formError.textContent = "— ADD A BRIEF LINK, A DESCRIPTION OR UPLOAD A BRIEF."; form.querySelector('[name="message"]').focus(); return; }
         formError.textContent = "— SENDING…";
         var channel = currentChannel();
         var data = { name: name, channel: channel, contact: cval, message: desc, file: fileInput.files[0] ? fileInput.files[0].name : "" };
