@@ -944,7 +944,7 @@ html{scroll-behavior:auto}
   var workGridEl = document.getElementById("workGrid");
   WORKS.forEach(function(w, i){
     var name = w[0], cat = w[1];
-    var srcs = [encodeURIComponent(name)];
+    var srcs = ["work/" + encodeURIComponent(name)];
     var id = DRIVE[name];
     if (id) {
       srcs.push("https://wsrv.nl/?url=" + encodeURIComponent("https://lh3.googleusercontent.com/d/" + id) + "&w=1200&q=85&output=webp");
